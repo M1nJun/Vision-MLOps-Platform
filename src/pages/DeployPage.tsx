@@ -197,7 +197,7 @@ export default function DeployPage() {
 
   return (
     <main className="page">
-      <PageHead title="Deploy" origin="Model Injector" />
+      <PageHead title="Deploy" />
 
       <div className="deploy-body">
         <section className="panel">

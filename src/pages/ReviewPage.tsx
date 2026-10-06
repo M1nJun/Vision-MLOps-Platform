@@ -166,7 +166,7 @@ export default function ReviewPage() {
 
   return (
     <main className="page">
-      <PageHead title="Review" origin="Result Fetcher · Viewer tab" />
+      <PageHead title="Review" />
 
       <StationTabs value={stationId} onChange={switchStation} />
 

@@ -183,16 +183,13 @@ export default function CollectPage() {
   const pct = run.total ? Math.round((run.done / run.total) * 100) : run.phase === "done" ? 100 : 0;
   return (
     <main className="page">
-      <PageHead title="Collect" origin="Result Fetcher · Fetch tab" />
+      <PageHead title="Collect" />
 
       <StationTabs value={stationId} onChange={switchStation} />
 
       <section className="panel">
         <div className="panel-head">
           <h2>Session · {station.name}</h2>
-          <span className="aside">
-            source: {station.source === "crop-folders" ? "DL crop folders" : "result CSV → image locator"}
-          </span>
         </div>
         <div className="session-grid">
           <div className="form-stack">
@@ -294,6 +291,8 @@ function ClassBreakdown({ stationId }: { stationId: string }) {
   const occ = state.collected[stationId] ?? [];
   const cl = state.clusters[stationId];
   const result = cl?.status === "done" ? cl.result : undefined;
+  // Crops that were here before any fetch this session are shown unclustered.
+  const waiting = !!cl || state.clusterPending.includes(stationId);
 
   const rows = useMemo(() => {
     const m = new Map<string, { vision: Vision; cls: string; n: number }>();
@@ -340,7 +339,7 @@ function ClassBreakdown({ stationId }: { stationId: string }) {
                       <td className="mono">{visionLabel(r.vision)}</td>
                       <td className="mono strong">{r.cls}</td>
                       <td className="num strong">{r.n}</td>
-                      <td className="num">{g ? g.k : "…"}</td>
+                      <td className="num">{g ? g.k : waiting ? "…" : "-"}</td>
                       <td>
                         {g ? (
                           <div className="cluster-bar" title={g.sizes.map((s, i) => `C${i + 1}: ${s}`).join("  ")}>
@@ -349,7 +348,7 @@ function ClassBreakdown({ stationId }: { stationId: string }) {
                             ))}
                           </div>
                         ) : (
-                          <div className="cluster-bar pending" />
+                          <div className={`cluster-bar${waiting ? " pending" : " idle"}`} />
                         )}
                       </td>
                       <td className="num">{g && g.k > 1 ? g.silhouette.toFixed(2) : "-"}</td>

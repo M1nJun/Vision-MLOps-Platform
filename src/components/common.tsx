@@ -96,14 +96,13 @@ export function Modal({
   );
 }
 
-export function PageHead({ title, lede, origin }: { title: string; lede?: ReactNode; origin?: string }) {
+export function PageHead({ title, lede }: { title: string; lede?: ReactNode }) {
   return (
     <div className="page-head">
       <div>
         <h1>{title}</h1>
         {lede && <p className="lede">{lede}</p>}
       </div>
-      {origin && <span className="origin" title="The desktop tool this page reproduces">{origin}</span>}
     </div>
   );
 }

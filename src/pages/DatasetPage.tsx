@@ -34,7 +34,7 @@ export default function DatasetPage() {
 
   return (
     <main className="page">
-      <PageHead title="Dataset" origin="Dataset folder → training set" />
+      <PageHead title="Dataset" />
 
       <div className="seg">
         <button className={stationFilter === "all" ? "on" : ""} onClick={() => setStationFilter("all")}>

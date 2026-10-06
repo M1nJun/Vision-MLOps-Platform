@@ -60,6 +60,9 @@ export interface State {
   sessionStart: number;
   /** model -> clustering of whatever is currently in that model's output folder. */
   clusters: Record<string, ClusterState>;
+  /** Models whose latest fetch is waiting to be clustered. Only a fetch the user ran
+   *  lands here - the crops already on screen when the demo opens are left as they are. */
+  clusterPending: string[];
 }
 
 export interface ClusterState {
@@ -127,6 +130,11 @@ function reducer(state: State, action: Action): State {
         collected: { ...state.collected, [action.station]: [...byId.values()] },
         outDirs: { ...state.outDirs, [action.station]: action.outDir },
         undo: { ...state.undo, [action.station]: [] },
+        // The previous clustering described crops that have just been replaced.
+        clusters: Object.fromEntries(Object.entries(state.clusters).filter(([st]) => st !== action.station)),
+        clusterPending: state.clusterPending.includes(action.station)
+          ? state.clusterPending
+          : [...state.clusterPending, action.station],
         activity: log(
           state,
           "collect",
@@ -218,6 +226,7 @@ function reducer(state: State, action: Action): State {
             result: r,
           },
         },
+        clusterPending: state.clusterPending.filter((st) => st !== action.station),
         activity: log(
           state,
           "collect",
@@ -268,6 +277,7 @@ function seedState(): State {
     deploys: [],
     packages: MODEL_PACKAGES,
     clusters: {},
+    clusterPending: [],
     sessionStart: now - 1000 * 60 * 115,
     activity: [
       { at: now - 1000 * 60 * 40, kind: "review", text: `Model 1: ${Object.keys(labels).length} crops reviewed and copied into the dataset` },
@@ -301,8 +311,8 @@ function ClusterRunner({ state, dispatch }: { state: State; dispatch: (a: Action
 
   useEffect(() => {
     if (busy.current) return;
-    const station = Object.keys(state.collected).find(
-      (st) => state.collected[st].length > 0 && state.clusters[st]?.signature !== collectionSignature(state, st),
+    const station = state.clusterPending.find(
+      (st) => (state.collected[st]?.length ?? 0) > 0 && state.clusters[st]?.signature !== collectionSignature(state, st),
     );
     if (!station) return;
     busy.current = true;

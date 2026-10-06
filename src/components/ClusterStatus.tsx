@@ -12,7 +12,8 @@ export default function ClusterStatus({ station, compact }: { station: string; c
   const { state } = useStore();
   const c = state.clusters[station];
   const n = state.collected[station]?.length ?? 0;
-  if (!n) return null;
+  // Nothing to report until the user has run a fetch for this model.
+  if (!n || (!c && !state.clusterPending.includes(station))) return null;
 
   if (!c || c.status === "running") {
     const label = !c
